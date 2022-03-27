@@ -1,38 +1,70 @@
 '''
+# 이거는 꼭 DFS, BFS 구현하는 방법을 익혀놓자... 
 2022/03/27
 boj.kr/1260
 
-요세푸스 문제2
-요세푸스 문제는 다음과 같다.
+DFS와 BFS
 
-1번부터 N번까지 N명의 사람이 원을 이루면서 앉아있고, 양의 정수 K(≤ N)가 주어진다. 
-이제 순서대로 K번째 사람을 제거한다. 한 사람이 제거되면 남은 사람들로 이루어진 원을 따라 이 과정을 계속해 나간다. 
-이 과정은 N명의 사람이 모두 제거될 때까지 계속된다. 원에서 사람들이 제거되는 순서를 (N, K)-요세푸스 순열이라고 한다. 
-예를 들어 (7, 3)-요세푸스 순열은 <3, 6, 2, 7, 5, 1, 4>이다.
-
-N과 K가 주어지면 (N, K)-요세푸스 순열을 구하는 프로그램을 작성하시오.
+문제 :
+그래프를 DFS로 탐색한 결과와 BFS로 탐색한 결과를 출력하는 프로그램을 작성하시오. 
+단, 방문할 수 있는 정점이 여러 개인 경우에는 정점 번호가 작은 것을 먼저 방문하고, 
+더 이상 방문할 수 있는 점이 없는 경우 종료한다. 정점 번호는 1번부터 N번까지이다.
 
 입력 :
-첫째 줄에 N과 K가 빈 칸을 사이에 두고 순서대로 주어진다. (1 ≤ K ≤ N ≤ 5,000)
+첫째 줄에 정점의 개수 N(1 ≤ N ≤ 1,000), 간선의 개수 M(1 ≤ M ≤ 10,000), 탐색을 시작할 정점의 번호 V가 주어진다. 
+다음 M개의 줄에는 간선이 연결하는 두 정점의 번호가 주어진다. 
+어떤 두 정점 사이에 여러 개의 간선이 있을 수 있다. 입력으로 주어지는 간선은 양방향이다.
 
 결과 :
-예제와 같이 요세푸스 순열을 출력한다.
+첫째 줄에 DFS를 수행한 결과를, 그 다음 줄에는 BFS를 수행한 결과를 출력한다. V부터 방문된 점을 순서대로 출력하면 된다.
 
-이거 너무 어렵다.... 좀 더 고민이 필요할 것 같다.
 '''
 import sys
 input = sys.stdin.readline
 
-people, remove = map(int, input().split())
 
-arr = [i for i in range(people)]
-result_arr = []
+def DFS(graph, start, visited=[]):
+    visited.append(start)
+
+    for node in graph[start]:
+        if node not in visited:
+            DFS(graph, node, visited)
+
+    return visited
 
 
-now_remove = 0
-for i in range(people):
-    now_remove = (now_remove + remove - 1) % people
-    people -= 1
-    result_arr.append(str(arr.pop(now_remove)+1))
+def BFS(graph, start):
+    visited = []
+    visited.append(start)
 
-print("<" + ", ".join(result_arr) + ">")
+    queue = []
+    queue.append(start)
+
+    while queue:
+        node = queue.pop(0)
+
+        for i in range(1, len(graph)+1):
+            if i not in visited and i in graph[node]:
+                queue.append(i)
+                visited.append(i)
+    return visited
+
+
+n, m, v = map(int, input().split())
+
+graph = [[] for _ in range(n+1)]
+
+for i in range(m):
+    a, b = map(int, input().split())
+    graph[a].append(b)
+    graph[b].append(a)
+
+
+for j in graph:
+    j.sort()
+
+dfs_result = (DFS(graph, v))
+print(*dfs_result)
+
+bfs_result = (BFS(graph, v))
+print(*bfs_result)
